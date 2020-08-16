@@ -2,90 +2,36 @@
 {% load static %}
 {% block content %}
 <main role="main">
-
+{% for article in articles %}
   <div class="jumbotron">
     <div class="container">
-      <h1 class="display-4">Добро пожаловать на сайт просто магазина</h1>
-      <p>Лучшие мобилы только у нас:</p>
+      <h1 class="display-4">{{ article.title }}</h1>
+      <p>{{ article.content }}</p>
     </div>
   </div>
 
 
   <div class="container mb-5">
     <!-- Example row of columns -->
-    <div class="row">
+      <div class="row">
+          {% for obj in article.phones %}
+              <div class="col-md-4">
+                <h2>{{ obj.name }}</h2>
 
-      <div class="col-md-4">
-        <h2>Nexus 5x</h2>
+                <a href="{{ obj.link }}">
+                  <img src="{% static obj.staticpath %}" width="180">
+                </a>
 
-        <a href="{% url "phone" %}">
-          <img src="{% static "shop/nexus5x.webp" %}" width="180">
-        </a>
-
-        <form>
-          <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
-        </form>
+                <form action="/cart/" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="phone_id" value="{{ obj.phone_id }}">
+                  <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
+                </form>
+              </div>
+          {% endfor %}
       </div>
-
-      <div class="col-md-4">
-        <h2>iPhone 7</h2>
-
-        <a href="{% url "phone" %}">
-
-          <img src="{% static 'shop/iphone7.webp' %}" width="180">
-
-        </a>
-
-        <form>
-          <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
-        </form>
-      </div>
-
-      <div class="col-md-4">
-        <h2>Pixel 2</h2>
-
-        <a href="{% url "phone" %}">
-
-          <img src="{% static 'shop/pixel2.webp' %}" width="180">
-
-        </a>
-
-        <form>
-          <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
-        </form>
-      </div>
-
-    </div>
   </div> <!-- /container -->
-
-  <div class="jumbotron">
-    <div class="container">
-      <h1 class="display-4">Не знаете что одеть летом?</h1>
-      <p>Вот что мы можем предложить:</p>
-    </div>
-  </div>
-
-
-  <div class="container mb-5">
-    <!-- Example row of columns -->
-    <div class="row">
-
-      <div class="col-md-4">
-        <h2>Фуфайка</h2>
-
-        <a href="{% url "phone" %}">
-
-          <img src="{% static 'shop/fufajka.jpg' %}" width="180">
-
-        </a>
-
-        <form>
-          <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
-        </form>
-      </div>
-
-    </div>
-  </div> <!-- /container -->
+{% endfor %}
 
 </main>
 {% endblock %}

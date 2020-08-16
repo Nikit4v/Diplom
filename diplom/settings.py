@@ -124,3 +124,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [
     "shop/static"
 ]
+
+DATA_MULTIPLIER = 1000
+OBJECTS_PER_PAGE = 4

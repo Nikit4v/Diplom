@@ -2,81 +2,37 @@
 {% load static %}
 {% block content %}
 <main role="main">
+    <br>
 
   <div class="container">
     <!-- Example row of columns -->
 
     <h1>Смартфоны</h1>
-
-    <div class="row">
-
-
-      <div class="col-md-4">
-        <h2>Nexus 5x</h2>
-
-        <a href="{% url "phone" %}">
-
-          <img src="{% static 'shop/nexus5x.webp' %}" width="180">
-
-        </a>
-
-        <form>
-          <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
-        </form>
-      </div>
-
-
-      <div class="col-md-4">
-        <h2>iPhone 7</h2>
-
-        <a href="{% url 'phone' %}">
-
-          <img src="{% static 'shop/iphone7.webp' %}" width="180">
-
-        </a>
-
-        <form>
-          <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
-        </form>
-      </div>
-
-
-      <div class="col-md-4">
-        <h2>Pixel 2</h2>
-
-        <a href="{% url 'phone' %}">
-
-          <img src="{% static 'shop/pixel2.webp' %}" width="180">
-
-        </a>
-
-        <form>
-          <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
-        </form>
-      </div>
-
-    </div>
-
-    <div class="row">
-
-
-      <div class="col-md-4">
-        <h2>Samsung S8</h2>
-
-        <a href="{% url "phone" %}">
-
-          <img src="{% static 'shop/samsungs8.webp' %}" width="180">
-
-        </a>
-
-        <form>
-          <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
-        </form>
-      </div>
-
-
-    </div> <!-- /container -->
+    {% for tuple in iter %}
+        <div class="row">
+            {% for item in tuple %}
+                <div class="col-md-4"><h2>{{ item.name }}</h2>
+                    <a href="{{ item.link }}"><img src="{% static item.staticpath %}" width="180"></a>
+                    <form action="/cart/" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="phone_id" value="{{ item.phone_id }}">
+                        <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
 
   </div>
+    <br><br>
+<nav aria-label="Статьи по Bootstrap 4">
+    <ul class="pagination pagination-sm justify-content-center">
+        <li class="page-item {{ nav.prev.status }}"><a class="page-link" href="/smartphones/?page={{ nav.prev.link }}">Предыдущая</a></li>
+        {% for li in nav.ul %}
+        <li class="page-item {{ li.status }}"><a class="page-link" href="/smartphones/?page={{ li.num }}">{{ li.num }}</a></li>
+        {% endfor %}
+        <li class="page-item {{ nav.next.status }}"><a class="page-link" href="/smartphones/?page={{ nav.next.link }}">Следующая</a></li>
+    </ul>
+</nav>
 </main>
 {% endblock %}
