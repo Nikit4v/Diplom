@@ -4,7 +4,7 @@ from django.http import Http404
 from django.shortcuts import render, redirect
 from diplom.settings import DATA_MULTIPLIER, OBJECTS_PER_PAGE
 from shop import Helper
-from shop.models import Phone, CartCompanion, Article
+from shop.models import Phone, CartCompanion, Article, Comment, CartCompanionSupport
 
 
 def baseview(request):
@@ -45,28 +45,45 @@ def cart(request):
             for obj in objects:
                 cart_list.append({
                     "name": obj.name,
-                    "description": obj.description
+                    "description": obj.description,
+                    "count": CartCompanionSupport.objects.filter(phones=obj, cart=cart_obj).first().count
                 })
             context = {
                 "cart": cart_list,
                 "phrase": phrase,
                 "b_action": b_action
             }
+            context = Helper.context_generator(request, **context)
             return render(request, "cart.html", context)
         else:
             return redirect("/login/")
     else:
         if request.user.is_authenticated:
-            if not (cart_obj := CartCompanion.objects.filter(user=request.user).first()):
-                cart_obj = CartCompanion.objects.create(user=request.user)
-            if Phone.objects.filter(visible_status="v", id=request.POST["phone_id"]).first():
-                cart_obj.cart.add(Phone.objects.filter(visible_status="v", id=request.POST["phone_id"]).first())
-            return redirect(request.get_full_path())
+            if not request.POST.get("order", None):
+                if not (cart_obj := CartCompanion.objects.filter(user=request.user).first()):
+                    cart_obj = CartCompanion.objects.create(user=request.user)
+                if Phone.objects.filter(visible_status="v", id=request.POST["phone_id"]).first():
+                    if Phone.objects.filter(visible_status="v",
+                                            id=request.POST["phone_id"]).first() in cart_obj.cart.all():
+                        print(obj := Phone.objects.filter(visible_status="v", id=request.POST["phone_id"]).first())
+                        m1 = CartCompanionSupport.objects.filter(phones=obj, cart=cart_obj).first()
+                        m1.count += 1
+                        m1.save()
+                    else:
+                        m1 = CartCompanionSupport.objects.create(
+                            cart=cart_obj,
+                            phones=Phone.objects.filter(visible_status="v", id=request.POST["phone_id"]).first()
+                        )
+                        m1.save()
+                return redirect(request.get_full_path())
+            else:
+                Helper.cart_to_order(request.user.cart)
+                return redirect('/')
         else:
             return redirect("/login/")
 
 
-def mainview(request):
+def main_view(request):
     if not request.user.is_authenticated:
         phrase = "Войти"
         b_action = "/login/"
@@ -81,59 +98,14 @@ def mainview(request):
             "title": obj.title,
             "content": obj.content,
             "phones": [{"name": item.name, "staticpath": item.staticpath, "phone_id": item.id} for item in
-                       obj.phones.all()]
+                       obj.phones.all()] * DATA_MULTIPLIER
         })
-    context = {
-        "articles": articles,
-        "phrase": phrase,
-        "b_action": b_action
-    }
+    context = Helper.context_generator(request, articles=articles)
     return render(request, "index.html", context)
 
 
 def smartphones(request):
-    if not request.user.is_authenticated:
-        phrase = "Войти"
-        b_action = "/login/"
-    else:
-        phrase = "Выйти"
-        b_action = "/logout/"
-    objects = Phone.objects.filter(visible_status="v")
-    raw_content = []
-    for obj in objects:
-        raw_content.append({
-            "name": obj.name,
-            "link": f"/phone?id={obj.id}",
-            "staticpath": obj.staticpath,
-            "cartform_action": "/cart",
-            "phone_id": obj.id
-        })
-    content = raw_content*DATA_MULTIPLIER
-    data = Helper.tuples(content)
-    paginator = Paginator(data, OBJECTS_PER_PAGE)
-    if not request.GET.get("page", None):
-        page = paginator.page(1)
-    else:
-        page = paginator.page(int(request.GET["page"]))
-        print(paginator.page_range)
-    nav = {
-        "prev": {
-            "status": "disabled" if not page.has_previous() else "",
-            "link": page.previous_page_number() if page.has_previous() else "#"
-        },
-        "ul": Helper.ul_generator(request, paginator),
-        "next": {
-            "status": "disabled" if not page.has_next() else "",
-            "link": page.next_page_number() if page.has_next() else "#"
-        }
-    }
-    context = {
-        "iter": page.object_list,
-        "phrase": phrase,
-        "b_action": b_action,
-        "nav": nav
-    }
-    return render(request, "smartphones.html", context)
+    return Helper.fun(request, "p", "Смартфоны")
 
 
 def login(request):
@@ -177,7 +149,10 @@ def phone(request):
         phrase = "Выйти"
         b_action = "/logout/"
     if request.method != "GET":
-        raise Http404("Incorrect Method")
+        comment = Comment.objects.create(ratio=request.POST["mark"], author=request.POST["name"],
+                                         content=request.POST["description"], phone_id=request.GET["id"])
+        comment.save()
+        return redirect(request.get_full_path())
     if not request.GET.get("id", None):
         raise Http404("Phone does not exist")
     if not request.GET.get("wchy", None):
@@ -189,3 +164,15 @@ def phone(request):
 def logout(request):
     auth_logout(request)
     return redirect("/")
+
+
+def accessories(request):
+    return Helper.fun(request, "a", "Аксессуары")
+
+
+def consoles(request):
+    return Helper.fun(request, "c", "Игровые консоли")
+
+
+def monitors(request):
+    return Helper.fun(request, "m", "Мониторы")

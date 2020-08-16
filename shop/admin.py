@@ -1,5 +1,5 @@
 from django.contrib import admin
-from shop.models import Phone, CartCompanion, Article
+from shop.models import Phone, CartCompanion, Article, SiteField, Comment, Order
 
 
 class CartInline(admin.TabularInline):
@@ -7,8 +7,18 @@ class CartInline(admin.TabularInline):
     extra = 1
 
 
+class OrderInline(admin.TabularInline):
+    model = Order.phones.through
+    extra = 0
+
+
 class ArticleInline(admin.TabularInline):
     model = Article.phones.through
+
+
+#
+# class SiteFieldInline(admin.TabularInline):
+#     model = SiteField.dropdown_fields.through
 
 
 def make_visible(model, request, queryset):
@@ -34,7 +44,7 @@ print_id.short_description = "Print ID shortcut"
 
 
 class PhoneAdmin(admin.ModelAdmin):
-    list_display = ["name", "visible_status"]
+    list_display = ["name", "visible_status", "type"]
     actions = [make_visible, make_invisible, print_id]
 
 
@@ -75,3 +85,34 @@ class ArticleAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Article, ArticleAdmin)
+
+
+class SiteFieldAdmin(admin.ModelAdmin):
+    actions = [make_visible, make_invisible]
+    list_display = ["name", "visible_status"]
+
+
+admin.site.register(SiteField, SiteFieldAdmin)
+
+
+class CommentAdmin(admin.ModelAdmin):
+    actions = [make_visible, make_invisible]
+    list_display = ["author", "ratio", "visible_status"]
+
+
+admin.site.register(Comment, CommentAdmin)
+
+
+class OrderAdmin(admin.ModelAdmin):
+    actions = [make_visible, make_invisible]
+    list_display = ["user", "date"]
+    inlines = [
+        OrderInline
+    ]
+    exclude = [
+        "phones"
+    ]
+
+
+admin.site.register(Order, OrderAdmin)
+

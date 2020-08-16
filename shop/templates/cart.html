@@ -15,13 +15,15 @@
                 <h6 class="my-0">{{ obj.name }}</h6>
                 <small class="text-muted">{{ obj.description }}</small>
               </div>
-              <span class="text-muted">4</span>
+              <span class="text-muted">{{ obj.count }}</span>
             </li>
         {% endfor %}
       </ul>
 
-      <form class="card p-2">
-        <button type="submit" class="btn btn-secondary">Заказать</button>
+      <form class="card p-2" action="/cart/" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="order" value="True">
+          <button type="submit" class="btn btn-secondary">Заказать</button>
       </form>
     </div>
   </div>

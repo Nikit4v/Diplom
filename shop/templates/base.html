@@ -9,12 +9,6 @@
   <title>Graduation Work</title>
   <link rel="stylesheet" href="{% static 'shop/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'shop/main.css' %}">
-    <style type="text/css">
-   TABLE {
-    width: 100%; /* Ширина таблицы */
-    height: 100%; /* Высота таблицы */
-   }
-  </style>
 </head>
 <body class="" data-gr-c-s-loaded="true">
 
@@ -30,29 +24,20 @@
 
   <div class="collapse navbar-collapse" id="navbarsExampleDefault">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'home' %}">
-          Главная</a>
+
+    {% for obj in baseview.fields %}
+      <li class="nav-item {% if obj.dropdown %}dropdown{% endif %}">
+        <a class="nav-link {% if obj.dropdown %}dropdown-toggle{% endif %}" href="{{ obj.handler }}" data-toggle="{% if obj.dropdown %}dropdown{% endif %}"
+           aria-haspopup="true" aria-expanded="false">{{ obj.name}}</a>
+        {% if obj.dropdown %}
+          <div class="dropdown-menu" aria-labelledby="dropdown01">
+            {% for item in obj.dropdown_fields %}
+              <a class="dropdown-item" href="{{ item.handler }}">{{ item.name }}</a>
+            {% endfor %}
+          </div>
+        {% endif %}
       </li>
-
-
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown01"
-           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Гаджеты</a>
-        <div class="dropdown-menu" aria-labelledby="dropdown01">
-
-          <a class="dropdown-item" href="{% url "smartphones" %}">
-            Сматрфоны</a>
-
-        </div>
-      </li>
-
-
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'baseview' %}">
-          Аксесcуары</a>
-      </li>
+    {% endfor %}
 
 
     </ul>
@@ -62,8 +47,8 @@
 
 
     <a class="btn btn-outline-success my-2 my-sm-0" role="button"
-       href="{{ b_action }}">
-      {{ phrase }}</a>
+       href="{{ baseview.b_action }}">
+      {{ baseview.phrase }}</a>
 
   </div>
 </nav>
