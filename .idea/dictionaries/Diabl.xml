@@ -2,8 +2,12 @@
   <dictionary name="Diabl">
     <words>
       <w>baseview</w>
+      <w>cartform</w>
+      <w>managment</w>
+      <w>preiter</w>
       <w>smartphones</w>
       <w>staticpath</w>
+      <w>wchy</w>
     </words>
   </dictionary>
 </component>

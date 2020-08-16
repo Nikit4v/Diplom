@@ -3,7 +3,6 @@
 {% block content %}
 <main role="main">
 
-
   <div class="container mt-3">
     <!-- Example row of columns -->
     <div class="row">
@@ -13,9 +12,9 @@
           <img src="{% static staticpath %}" width="120">
 
         <p>{{ description }}</p>
-        <form method="post" action="./cart/">
+        <form method="post" action="/cart/">
           {% csrf_token %}
-          <input type="hidden" name="merchandise_id" value="{{ merchandise_is }}">
+          <input type="hidden" name="phone_id" value="{{ phone_id }}">
           <input type="submit" class="btn btn-secondary" value="Добавить в корзину »">
         </form>
       </div>
