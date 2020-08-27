@@ -1,10 +1,11 @@
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.core.paginator import Paginator
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from diplom.settings import DATA_MULTIPLIER, OBJECTS_PER_PAGE
 from shop import Helper
-from shop.models import Phone, CartCompanion, Article, Comment, CartCompanionSupport
+from shop.models import Phone, CartCompanion, Article, Comment, CartCompanionSupport, SiteField
+import re
 
 
 def baseview(request):
@@ -98,20 +99,19 @@ def main_view(request):
             "title": obj.title,
             "content": obj.content,
             "phones": [{"name": item.name, "staticpath": item.staticpath, "phone_id": item.id} for item in
-                       obj.phones.all()] * DATA_MULTIPLIER
+                       obj.phones.filter(visible_status="v")] * DATA_MULTIPLIER
         })
     context = Helper.context_generator(request, articles=articles)
     return render(request, "index.html", context)
 
 
-def smartphones(request):
-    return Helper.fun(request, "p", "Смартфоны")
-
-
 def login(request):
     if request.method == "POST":
-        user = authenticate(username=request.POST["username"], password=request.POST["password"])
-        auth_login(request, user)
+        try:
+            user = authenticate(username=request.POST["username"], password=request.POST["password"])
+            auth_login(request, user)
+        except:
+            pass
         return redirect("/")
     return render(request, "login.html")
 
@@ -166,13 +166,27 @@ def logout(request):
     return redirect("/")
 
 
-def accessories(request):
-    return Helper.fun(request, "a", "Аксессуары")
+def all_in_one(request):
+    string = ""
+    for char in request.get_full_path():
+        if char == "?":
+            break
+        string += char
+
+    obj = SiteField.objects.filter(visible_status="v").filter(phone_type=request.GET.get("type", "phone")).first()
+    try:
+        print(obj.phone_type)
+    except:
+        raise Http404()
+    else:
+        return Helper.fun(request, obj.phone_type, str(obj))
 
 
-def consoles(request):
-    return Helper.fun(request, "c", "Игровые консоли")
-
-
-def monitors(request):
-    return Helper.fun(request, "m", "Мониторы")
+REGISTERED_VIEWS = [
+    ["baseview", baseview],
+    ["all_in_one", all_in_one],
+    ["logout", logout],
+    ["phone", phone],
+    ["login", login],
+    ["main_view", main_view]
+]

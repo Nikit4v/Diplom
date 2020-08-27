@@ -22,12 +22,9 @@ urlpatterns = [
     path('admin/', admin.site.urls, name="admin_panel"),
     path('baseview/', views.baseview, name="baseview"),
     path('cart/', views.cart, name="cart"),
-    path('smartphones/', views.smartphones, name="smartphones"),
     path('login/', views.login, name="login"),
     path('logout/', views.logout, name="logout"),
+    path('smartphones/', views.all_in_one, name="smartphones"),
     path('phone/', views.phone, name="phone"),
-    path('accessories/', views.accessories, name="accessories"),
-    path('consoles/', views.consoles, name="consoles"),
-    path('monitors/', views.monitors, name="monitors"),
     path('', views.main_view, name="home"),
 ]

@@ -27,11 +27,11 @@
     <br><br>
 <nav aria-label="Статьи по Bootstrap 4">
     <ul class="pagination pagination-sm justify-content-center">
-        <li class="page-item {{ nav.prev.status }}"><a class="page-link" href="/smartphones/?page={{ nav.prev.link }}">Предыдущая</a></li>
+        <li class="page-item {{ nav.prev.status }}"><a class="page-link" href="/{{ nav.page }}/?page={{ nav.prev.link }}&type={{ nav.type }}">Предыдущая</a></li>
         {% for li in nav.ul %}
-        <li class="page-item {{ li.status }}"><a class="page-link" href="/smartphones/?page={{ li.num }}">{{ li.num }}</a></li>
+        <li class="page-item {{ li.status }}"><a class="page-link" href="/{{ nav.page }}/?page={{ li.num }}&type={{ nav.type }}">{{ li.num }}</a></li>
         {% endfor %}
-        <li class="page-item {{ nav.next.status }}"><a class="page-link" href="/smartphones/?page={{ nav.next.link }}">Следующая</a></li>
+        <li class="page-item {{ nav.next.status }}"><a class="page-link" href="/{{ nav.page }}/?page={{ nav.next.link }}&type={{ nav.type }}">Следующая</a></li>
     </ul>
 </nav>
 </main>

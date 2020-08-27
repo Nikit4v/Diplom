@@ -3,27 +3,27 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
+import json
 
 STATUS_CHOICES = (
     ("v", "Visible"),
     ("i", "Invisible")
 )
 
-TYPE_CHOICES = (
-    ("p", "Phones"),
-    ("c", "Consoles"),
-    ("a", "Accessories"),
-    ("o", "Other"),
-    ("m", "Monitors")
+RatioChoices = (
+    ("a", "★★★★★"),
+    ("b", "★★★★"),
+    ("c", "★★★"),
+    ("d", "★★"),
+    ("e", "★")
 )
-
 
 class Phone(models.Model):
     name = models.CharField(max_length=128, verbose_name="Phone name")
     description = models.TextField(verbose_name="Description")
     staticpath = models.CharField(max_length=256, verbose_name="Path to static file")
     visible_status = models.CharField(max_length=1, default="v", verbose_name="Visible status", choices=STATUS_CHOICES)
-    type = models.CharField(max_length=1, default="p", verbose_name="Type", choices=TYPE_CHOICES)
+    type = models.CharField(max_length=32, default="p", verbose_name="Type")
 
     def __str__(self):
         return self.name
@@ -49,16 +49,10 @@ class Article(models.Model):
 
 
 class Comment(models.Model):
-    class RatioChoices(models.TextChoices):
-        A = "a", _("★★★★★")
-        B = "b", _("★★★★")
-        C = "c", _("★★★")
-        D = "d", _("★★")
-        E = "e", _("★")
 
     author = models.CharField(max_length=128, verbose_name="Author")
     content = models.TextField()
-    ratio = models.CharField(max_length=1, verbose_name="Ratio", choices=RatioChoices.choices)
+    ratio = models.CharField(max_length=1, verbose_name="Ratio", choices=RatioChoices)
     phone = models.ForeignKey(Phone, on_delete=models.CASCADE, related_name="comments")
     visible_status = models.CharField(max_length=1, default="v", verbose_name="Visible status", choices=STATUS_CHOICES)
     pub_date = models.DateTimeField(default=timezone.now, verbose_name="Publish date")
@@ -70,10 +64,13 @@ class Comment(models.Model):
 class SiteField(models.Model):
     name = models.CharField(max_length=128, verbose_name="Field name")
     is_dropdown = models.BooleanField()
-    handler = models.CharField(max_length=128, default="#")
+    handler = models.CharField(max_length=128, default="#", blank=True, null=True)
+    exclude = models.BooleanField()
+    view = models.CharField(max_length=128, blank=True, null=True)
     dropdown_fields = models.ManyToManyField("SiteField", blank=True)
     main = models.BooleanField(default=True)
     visible_status = models.CharField(max_length=1, default="v", verbose_name="Visible status", choices=STATUS_CHOICES)
+    phone_type = models.CharField(max_length=32, blank=True, null=True)
 
     def __str__(self):
         return self.name

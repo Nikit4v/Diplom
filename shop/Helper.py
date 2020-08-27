@@ -5,6 +5,8 @@ from django.shortcuts import render
 
 from diplom.settings import OBJECTS_PER_PAGE, DATA_MULTIPLIER
 from shop.models import Phone, SiteField, Comment, CartCompanion, Order, CartCompanionSupport, OrderSupport
+from django.urls import path
+from shop import views
 
 
 def get_choice_result(model, choice):
@@ -37,7 +39,7 @@ def support(request, obj, phrase, b_action):
         context = {
             "comments": [
                 {
-                    "ratio": get_choice_result(Comment.RatioChoices, item.ratio),
+                    "ratio": get_choice_result(db_models.RatioChoives, item.ratio),
                     "author": item.author,
                     "content": item.content
                 } for item in obj.comments.order_by("pub_date").filter(visible_status="v")
@@ -48,7 +50,6 @@ def support(request, obj, phrase, b_action):
             "phone_id": obj.id
         }
         context = context_generator(request, **context)
-        print(context)
         return render(request, "phone.html", context=context)
     raise Http404("Phone does not exist")
 
@@ -84,12 +85,8 @@ def fun(request, type_, title):
     content = raw_content * DATA_MULTIPLIER
     data = tuples(content)
     paginator = Paginator(data, OBJECTS_PER_PAGE)
-    if not request.GET.get("page", None):
-        page = paginator.get_page(1)
-        page_number = 1
-    else:
-        page = paginator.get_page(int(request.GET["page"]))
-        page_number = int(request.GET["page"])
+    page = paginator.get_page(int(request.GET.get("page", 1)))
+    page_number = int(request.GET.get("page", 1))
     nav = {
         "prev": {
             "status": "disabled" if not page.has_previous() else "",
@@ -99,7 +96,8 @@ def fun(request, type_, title):
         "next": {
             "status": "disabled" if not page.has_next() else "",
             "link": page.next_page_number() if page.has_next() else "#"
-        }
+        },
+        "type": request.GET.get("type", None)
     }
     context = {
         "title": title,
@@ -123,9 +121,9 @@ def context_generator(request: HttpRequest, include_baseview: bool = True, **kwa
                     "name": item.name,
                     "dropdown": item.is_dropdown,
                     "dropdown_fields": [],
-                    "handler": str(item.handler)
+                    "handler": f"/smartphones/?type={item.phone_type}"
                 } for item in obj.dropdown_fields.filter(visible_status="v", main=False)],
-                "handler": str(obj.handler)
+                "handler": f"{obj.handler}{'?type='+obj.phone_type if obj.phone_type else ''}"
             })
         raw_context["baseview"] = {
             "fields": cache,
