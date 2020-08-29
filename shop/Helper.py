@@ -65,14 +65,14 @@ def ul_generator(page_number, paginator):
     return arr
 
 
-def fun(request, type_, title):
+def fun(request, ty_pe, title):
     if not request.user.is_authenticated:
         phrase = "Войти"
         b_action = "/login/"
     else:
         phrase = "Выйти"
         b_action = "/logout/"
-    objects = Phone.objects.filter(visible_status="v", type=type_)
+    objects = Phone.objects.filter(visible_status="v", type__phone_type=ty_pe)
     raw_content = []
     for obj in objects:
         raw_content.append({
@@ -87,6 +87,11 @@ def fun(request, type_, title):
     paginator = Paginator(data, OBJECTS_PER_PAGE)
     page = paginator.get_page(int(request.GET.get("page", 1)))
     page_number = int(request.GET.get("page", 1))
+    string = ""
+    for char in request.get_full_path():
+        if char == "?":
+            break
+        string += char
     nav = {
         "prev": {
             "status": "disabled" if not page.has_previous() else "",
@@ -97,7 +102,9 @@ def fun(request, type_, title):
             "status": "disabled" if not page.has_next() else "",
             "link": page.next_page_number() if page.has_next() else "#"
         },
-        "type": request.GET.get("type", None)
+        "type": request.GET.get("type", None),
+        "page": string,
+        "host": request.get_host()
     }
     context = {
         "title": title,

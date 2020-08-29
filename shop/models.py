@@ -18,12 +18,14 @@ RatioChoices = (
     ("e", "★")
 )
 
+
 class Phone(models.Model):
     name = models.CharField(max_length=128, verbose_name="Phone name")
     description = models.TextField(verbose_name="Description")
     staticpath = models.CharField(max_length=256, verbose_name="Path to static file")
     visible_status = models.CharField(max_length=1, default="v", verbose_name="Visible status", choices=STATUS_CHOICES)
-    type = models.CharField(max_length=32, default="p", verbose_name="Type")
+    type = models.ForeignKey('SiteField', on_delete=models.CASCADE, verbose_name="Type", blank=True, null=True)
+    # type = models.CharField(blank=True, null=True, max_length=32)
 
     def __str__(self):
         return self.name
@@ -49,7 +51,6 @@ class Article(models.Model):
 
 
 class Comment(models.Model):
-
     author = models.CharField(max_length=128, verbose_name="Author")
     content = models.TextField()
     ratio = models.CharField(max_length=1, verbose_name="Ratio", choices=RatioChoices)
@@ -70,6 +71,7 @@ class SiteField(models.Model):
     dropdown_fields = models.ManyToManyField("SiteField", blank=True)
     main = models.BooleanField(default=True)
     visible_status = models.CharField(max_length=1, default="v", verbose_name="Visible status", choices=STATUS_CHOICES)
+
     phone_type = models.CharField(max_length=32, blank=True, null=True)
 
     def __str__(self):

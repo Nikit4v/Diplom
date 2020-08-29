@@ -2,7 +2,7 @@
 ### Установка
 Скачать (clean ветку, не master) репозиторий, установить django, запустить следующие команды:
 `python manage.py migrate`
-`python manage.py loaddata db.json`
+`python manage.py loaddata fixtures.json`
 
 Всё! Проект готов к работе!
 

@@ -111,9 +111,9 @@ def login(request):
             user = authenticate(username=request.POST["username"], password=request.POST["password"])
             auth_login(request, user)
         except:
-            pass
+            return render(request, "login.html", context={"is_error": True})
         return redirect("/")
-    return render(request, "login.html")
+    return render(request, "login.html", context={"is_error": False})
 
 
 def phone(request):

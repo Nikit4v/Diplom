@@ -37,7 +37,7 @@ make_invisible.short_description = "Make objects invisible"
 
 def print_id(model, request, queryset):
     for obj in queryset:
-        print(f"{obj.name}: {obj.id}")
+        print(f"{obj.name}: {obj.type}")
 
 
 print_id.short_description = "Print ID shortcut"

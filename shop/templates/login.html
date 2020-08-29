@@ -11,7 +11,9 @@
   <link rel="stylesheet" href="{% static 'shop/login.css' %}">
 </head>
 <body class="text-center" data-gr-c-s-loaded="true">
-
+{% if is_error %}
+Произошла ошибка
+{% endif %}
 
 <form class="form-signin" action="/login/" method="post">
     {% csrf_token %}
